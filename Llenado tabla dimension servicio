@@ -1,0 +1,20 @@
+create or replace 
+procedure dimension_servicio as
+
+
+cursor cursor_servicio is 
+(select svo_codigo codigo_s,tso_codigo codigo_t,svo_nombre nombre,svo_descripcion des from sds_servicios);
+
+v_servicio cursor_servicio%rowtype;
+
+begin
+
+open cursor_servicio;
+loop
+fetch cursor_servicio into v_servicio;
+exit when cursor_servicio%notfound;
+dbms_output.put_line('Codigo servicio:  '||v_servicio.codigo_s || ' Nombre: ' || v_servicio.nombre);
+insert into servicio_dwh(id_tipo_servicio,nombre,descripcion,id_anterior) values(v_servicio.codigo_t,v_servicio.nombre,v_servicio.des,v_servicio.codigo_s);
+end loop;
+close cursor_servicio;
+end dimension_servicio;
