@@ -1,0 +1,20 @@
+create or replace 
+procedure dimension_localidad as
+
+
+cursor cursor_localidad is 
+(select lcd_codigo,lcd_nombre from sds_localidades_lcd);
+
+v_localidad cursor_localidad%rowtype;
+
+begin
+
+open cursor_localidad;
+loop
+fetch cursor_localidad into v_localidad;
+exit when cursor_localidad%notfound;
+dbms_output.put_line('Codigo:  '||v_localidad.lcd_codigo || ' Nombre: ' || v_localidad.lcd_nombre);
+insert into localidad_dwh(nombre,id_anterior) values(v_localidad.lcd_nombre,v_localidad.lcd_codigo);
+end loop;
+close cursor_localidad;
+end dimension_localidad;
