@@ -1,0 +1,186 @@
+
+1.
+
+Tiempo promedio que una solicitud pasa en cada uno de los estados desde que es introducida por los 
+
+diversos 
+centros de costo hasta que es entregada por la dirección de servicios generales.
+
+
+select  etu.etu_codigo, etu.etu_nombre,round(avg(ihs.his_fecha_fin - 
+
+ihs.his_fecha_inicio),3)"Tiempo Promedio"
+from sds_items_historicos_ihs ihs 
+join sds_formatos_fmo fmo
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+join sds_estatus_etu etu
+on(etu.etu_codigo = ihs.etu_codigo)
+group by etu.etu_codigo,etu.etu_nombre;
+
+2.
+- Cantidad de personal usado en las diferetes ramas
+select tso.tso_nombre "Tipo de Servicio",ser.tso_codigo "Codigo Tipo de Servicio", ser.svo_codigo 
+
+"Codigo Servicio",sum(apl.apl_personalusado)"Cantidad "
+from sds_servicios ser 
+join sds_asignar_personal_apl apl
+on(apl.svo_codigo = ser.svo_codigo)
+join sds_tipo_servicios_tso tso
+on(tso.tso_codigo = ser.tso_codigo)
+group by  tso.tso_nombre,ser.tso_codigo, ser.svo_codigo
+order by 4 asc;
+
+- Porcentaje de Obras terminadas
+
+select round((Chiquito.Codigo/(select count( distinct ihs.fmo_codigo) from 
+
+sds_items_historicos_ihs ihs))*100,2) "Porcentaje"
+from
+(select Count(ihs.fmo_codigo)Codigo
+from sds_items_historicos_ihs ihs  join  sds_estatus_etu etu
+on(ihs.etu_codigo= etu.etu_codigo) 
+join sds_formatos_fmo fmo
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+where etu.etu_nombre=lower('terminado')
+)Chiquito
+
+--
+--------------------------------------------------------------------------------------------------
+
+--------------------------
+3.El manejo de inventario es otro punto mejorable dentro de la gestión por lo que interesa saber 
+
+los máximos
+ y mínimos de material utilizados en cada mes.
+
+
+
+select * from(
+select to_char(ihs.his_fecha_fin, 'Month')"Mes", sum(am.aml_cantidadusada)"Cantidad Minima"
+from sds_asignar_material_am am
+join sds_servicios ser
+on(ser.svo_codigo = am.svo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.svo_codigo= ser.svo_codigo)
+join sds_estatus_etu etu
+on(ihs.etu_codigo = etu.etu_codigo)
+where etu.etu_nombre= 'aprobado'
+group by to_char(ihs.his_fecha_fin, 'Month')
+order by 2 asc)
+where rownum=1
+
+select * from(
+select to_char(ihs.his_fecha_fin, 'Month')"Mes", sum(am.aml_cantidadusada)"Cantidad Maxima"
+from sds_asignar_material_am am
+join sds_servicios ser
+on(ser.svo_codigo = am.svo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.svo_codigo= ser.svo_codigo)
+join sds_estatus_etu etu
+on(ihs.etu_codigo = etu.etu_codigo)
+where etu.etu_nombre= 'aprobado'
+group by to_char(ihs.his_fecha_fin, 'Month')
+order by 2 desc)
+where rownum=1
+--------------------------------------------------------------------------------------------------
+
+-------------
+
+
+
+4. Nuestro director necesita saber si aumentando el personal es posible disminuir los
+tiempos de respuesta para ello necesita saber el porcentaje de ocupación del personal de
+servicios generales. Así como también la cantidad de proyectos que atienden
+simultáneamente.
+
+-Porcentaje 
+select round((Chiqui.Suma/( select count(cedula) from sds_personas_per)),2)Porcentaje
+from
+(select (sum(Chiquito.suma)) Suma
+from
+(select sum(apl.apl_personalusado)suma
+from sds_asignar_personal_apl apl
+)Chiquito)Chiqui
+
+
+
+6. Porcentaje que representa cada centro de costo en el sistema de solicitudes de servicios
+generales.
+
+
+select fmo.jef_infa_ctr_id_centro "Codigo Centro",count(fmo.fmo_codigo)"Cantidad Solicitudes",
+
+(select count(fmo.fmo_codigo)
+from sds_formatos_fmo fmo)"Total Solicitudes",round((count(fmo.fmo_codigo)/(select count
+
+(fmo.fmo_codigo) from sds_formatos_fmo fmo))*100,2) "Porcentaje"
+from sds_formatos_fmo fmo
+group by fmo.jef_infa_ctr_id_centro
+order by 1
+
+select fmo.jef_infa_ctr_id_centro "Codigo Centro",round((count(fmo.fmo_codigo)/(select count
+
+(fmo.fmo_codigo) from sds_formatos_fmo fmo))*100,2) "Porcentaje"
+from sds_formatos_fmo fmo
+group by fmo.jef_infa_ctr_id_centro
+order by 1
+
+
+8. Trabajos que sobrepasan su estimación en materiales y mano de obra.
+
+select ser.svo_codigo, sum(am.aml_cantidadestimada),sum(am.aml_cantidadestimada), sum
+
+(apl.apl_personalsugerido), sum(apl.apl_personalusado)
+from sds_asignar_material_am am
+join sds_servicios ser
+on(ser.svo_codigo = am.svo_codigo)
+join sds_asignar_personal_apl apl 
+on(apl.svo_codigo = apl.svo_codigo)
+where am.aml_cantidadestimada  <am.aml_cantidadusada
+and apl.apl_personalsugerido < apl.apl_personalusado
+group by  ser.svo_codigo
+
+
+9. Mensualmente cual es la cantidad de solicitudes atendidas, rechazadas y en espera.
+
+select etu_nombre,to_char(historico.his_fecha_fin,'MONTH-YY'),historico.etu_codigo,count
+
+(historico.fmo_codigo) 
+from sds_items_historicos_ihs historico
+join sds_estatus_etu estado
+on(historico.etu_codigo = estado.etu_codigo)
+where etu_nombre='listado' or etu_nombre='aprobado' or etu_nombre='pausado' 
+group by to_char(historico.his_fecha_fin,'MONTH-YY'), historico.etu_codigo,etu_nombre
+
+
+10.
+
+
+
+select edi.edo_nombre, count(ite.svo_codigo)
+from sds_edificio_edi edi 
+join sds_localidades_lcd lcd
+on(edi.edo_codigo = lcd.edo_codigo )
+join sds_items_ite ite
+on(ite.lcd_codigo =ite.lcd_codigo)
+group by edi.edo_nombre, edi.edo_codigo;
+
+
+
+11.	El manejo de inventario es otro punto mejorable dentro de la gestión por lo que interesa
+saber los máximos y mínimos de material utilizados en cada mes.
+
+select distinct ctr.ctr_descripcion, Grande.Tiempo  from
+sds_centro_costos_ctr ctr 
+join 
+
+(select Consulta.Centro Centro, Consulta.Tiempo Tiempo from
+(select fmo.jef_infa_ctr_id_centro Centro,sum(ihs.his_fecha_fin - fmo.fmo_fecha) Tiempo
+from sds_formatos_fmo fmo
+join sds_items_historicos_ihs ihs
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+group by fmo.jef_infa_ctr_id_centro
+order by 2 asc)Consulta
+where rownum=1)Grande
+
+on(ctr.ctr_id_centro = Grande.Centro);
