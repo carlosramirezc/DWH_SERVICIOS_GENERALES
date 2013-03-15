@@ -1,0 +1,696 @@
+DROP TABLE "SOLICITUD_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence SOLICITUD_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "SOLICITUD_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table SOLICITUD_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "SOLICITUD_DWH" 
+   (  "ID_SOLICITUD" NUMBER, 
+	"ID_CENTRO" NUMBER, 
+	"ID_ESTADO" NUMBER, 
+	"SOLICITUD_FECHA" DATE, 
+	"FECHA_INICIO" DATE, 
+	"FECHA_FIN" DATE, 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into SOLICITUD_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table SOLICITUD_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "SOLICITUD_DWH" MODIFY ("ID_SOLICITUD" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger SOLICITUD_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "SOLICITUD_D" 
+   before insert on "SOLICITUD_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_SOLICITUD" is null then 
+         select SOLICITUD_S.nextval into :NEW."ID_SOLICITUD" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "SOLICITUD_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+DROP TABLE "ESTADO_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence ESTADOS_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "ESTADOS_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table ESTADO_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "ESTADO_DWH" 
+   (	"ID_ESTADO" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"DESCRIPCION" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into ESTADO_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table ESTADO_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "ESTADO_DWH" MODIFY ("ID_ESTADO" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger ESTADO_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "ESTADO_D" 
+   before insert on "ESTADO_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_ESTADO" is null then 
+         select ESTADOS_S.nextval into :NEW."ID_ESTADO" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "ESTADO_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+DROP TABLE "CENTRO_COSTOS_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence CENTRO_COSTOS_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "CENTRO_COSTOS_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table CENTRO_COSTOS_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "CENTRO_COSTOS_DWH" 
+   (	"ID_CENTRO" NUMBER, 
+	"DESCRIPCION" VARCHAR2(100 BYTE), 
+	"UBICACION" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into CENTRO_COSTOS_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table CENTRO_COSTOS_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "CENTRO_COSTOS_DWH" MODIFY ("ID_CENTRO" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger CENTRO_COSTOS_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "CENTRO_COSTOS_D" 
+   before insert on "CENTRO_COSTOS_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_CENTRO" is null then 
+         select CENTRO_COSTOS_S.nextval into :NEW."ID_CENTRO" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "CENTRO_COSTOS_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+DROP TABLE "TIEMPO_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence TIEMPO_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "TIEMPO_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table TIEMPO_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "TIEMPO_DWH" 
+   (	"ID_TIEMPO" NUMBER, 
+	"DIA" VARCHAR2(20 BYTE), 
+	"MES" VARCHAR2(20 BYTE), 
+	"AÑO" VARCHAR2(20 BYTE), 
+	"FECHA" DATE
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into TIEMPO_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table TIEMPO_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "TIEMPO_DWH" MODIFY ("ID_TIEMPO" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger TIEMPO_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "TIEMPO_D" 
+   before insert on "TIEMPO_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_TIEMPO" is null then 
+         select TIEMPO_S.nextval into :NEW."ID_TIEMPO" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "TIEMPO_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+DROP TABLE "MATERIAL_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence MATERIAL_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "MATERIAL_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table MATERIAL_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "MATERIAL_DWH" 
+   (	"ID_MATERIAL" NUMBER, 
+	"ID_SERVICIO" NUMBER, 
+	"ID_SOLICITUD" NUMBER, 
+	"ID_TIPO_MATERIAL" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"DESCRIPCION" VARCHAR2(100 BYTE), 
+	"CANTIDAD_ESTIMADA" NUMBER, 
+	"CANTIDAD_USADA" NUMBER, 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into MATERIAL_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table MATERIAL_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "MATERIAL_DWH" MODIFY ("ID_MATERIAL" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger MATERIAL_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "MATERIAL_D" 
+   before insert on "MATERIAL_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_MATERIAL" is null then 
+         select MATERIAL_S.nextval into :NEW."ID_MATERIAL" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "MATERIAL_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+DROP TABLE "PERSONAL_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence PERSONAL_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "PERSONAL_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table PERSONAL_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "PERSONAL_DWH" 
+   (	"ID_PERSONAL" NUMBER, 
+	"CEDULA" VARCHAR2(20 BYTE), 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"APELLIDO" VARCHAR2(100 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into PERSONAL_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table PERSONAL_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "PERSONAL_DWH" MODIFY ("ID_PERSONAL" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger PERSONAL_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "PERSONAL_D" 
+   before insert on "PERSONAL_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_PERSONAL" is null then 
+         select PERSONAL_S.nextval into :NEW."ID_PERSONAL" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "PERSONAL_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+DROP TABLE "MANO_OBRA_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence MANO_OBRA_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "MANO_OBRA_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table MANO_OBRA_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "MANO_OBRA_DWH" 
+   (	"ID_MANO_OBRA" NUMBER, 
+	"ID_SOLICITUD_SERVICIO" NUMBER, 
+	"PERSONAL_SUGERIDO" NUMBER, 
+	"PERSONAL_USADO" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into MANO_OBRA_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table MANO_OBRA_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "MANO_OBRA_DWH" MODIFY ("ID_MANO_OBRA" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger MANO_OBRA_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "MANO_OBRA_D" 
+   before insert on "MANO_OBRA_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_MANO_OBRA" is null then 
+         select MANO_OBRA_S.nextval into :NEW."ID_MANO_OBRA" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "MANO_OBRA_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+DROP TABLE "CATEGORIA_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence CATEGORIA_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "CATEGORIA_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table CATEGORIA_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "CATEGORIA_DWH" 
+   (	"ID_CATEGORIA" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"DESCRIPCION" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into CATEGORIA_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table CATEGORIA_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "CATEGORIA_DWH" MODIFY ("ID_CATEGORIA" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger CATEGORIA_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "CATEGORIA_D" 
+   before insert on "CATEGORIA_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_CATEGORIA" is null then 
+         select CATEGORIA_S.nextval into :NEW."ID_CATEGORIA" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "CATEGORIA_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+DROP TABLE "SERVICIO_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence SERVICIO_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "SERVICIO_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table SERVICIO_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "SERVICIO_DWH" 
+   (	"ID_SERVICIO" NUMBER, 
+	"ID_TIPO_SERVICIO" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"DESCRIPCION" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into SERVICIO_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table SERVICIO_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "SERVICIO_DWH" MODIFY ("ID_SERVICIO" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger SERVICIO_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "SERVICIO_D" 
+   before insert on "SERVICIO_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_SERVICIO" is null then 
+         select SERVICIO_S.nextval into :NEW."ID_SERVICIO" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "SERVICIO_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+DROP TABLE "EDIFICIOS_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence EDIFICIO_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "EDIFICIO_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table EDIFICIOS_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "EDIFICIOS_DWH" 
+   (	"ID_EDIFICIO" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into EDIFICIOS_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table EDIFICIOS_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "EDIFICIOS_DWH" MODIFY ("ID_EDIFICIO" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger EDIFICIOS_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "EDIFICIOS_D" 
+   before insert on "EDIFICIOS_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_EDIFICIO" is null then 
+         select EDIFICIO_S.nextval into :NEW."ID_EDIFICIO" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "EDIFICIOS_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+DROP TABLE "FALLAS_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence FALLAS_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "FALLAS_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table FALLAS_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "FALLAS_DWH" 
+   (	"ID_FALLA" NUMBER, 
+	"ID_SOLICITUD" NUMBER, 
+	"ID_SERVICIO" NUMBER, 
+	"ID_LOCALIDAD" NUMBER, 
+	"ID_ESTADO" NUMBER, 
+	"FECHA_INICIO" DATE, 
+	"FECHA_FIN" DATE, 
+	"OBSERVACION" VARCHAR2(100 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into FALLAS_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table FALLAS_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "FALLAS_DWH" MODIFY ("ID_FALLA" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger FALLAS_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "FALLAS_D" 
+   before insert on "FALLAS_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_FALLA" is null then 
+         select FALLAS_S.nextval into :NEW."ID_FALLA" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "FALLAS_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+DROP TABLE "LOCALIDAD_DWH" cascade constraints;
+--------------------------------------------------------
+--  DDL for Sequence LOCALIDAD_S
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "LOCALIDAD_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table LOCALIDAD_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "LOCALIDAD_DWH" 
+   (	"ID_LOCALIDAD" NUMBER, 
+	"NOMBRE" VARCHAR2(100 BYTE), 
+	"ID_ANTERIOR" NUMBER
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into LOCALIDAD_DWH
+SET DEFINE OFF;
+--------------------------------------------------------
+--  Constraints for Table LOCALIDAD_DWH
+--------------------------------------------------------
+
+  ALTER TABLE "LOCALIDAD_DWH" MODIFY ("ID_LOCALIDAD" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger LOCALIDAD_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "LOCALIDAD_D" 
+   before insert on "LOCALIDAD_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_LOCALIDAD" is null then 
+         select LOCALIDAD_S.nextval into :NEW."ID_LOCALIDAD" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "LOCALIDAD_D" ENABLE;
+--------------------------------------------------------
+--  DDL for Synonymn DUAL
+--------------------------------------------------------
+
+  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+
