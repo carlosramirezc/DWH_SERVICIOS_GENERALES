@@ -1,4 +1,3 @@
-
 1.
 
 Tiempo promedio que una solicitud pasa en cada uno de los estados desde que es introducida por los 
@@ -167,8 +166,7 @@ group by edi.edo_nombre, edi.edo_codigo;
 
 
 
-11.	El manejo de inventario es otro punto mejorable dentro de la gestión por lo que interesa
-saber los máximos y mínimos de material utilizados en cada mes.
+11.
 
 select distinct ctr.ctr_descripcion, Grande.Tiempo  from
 sds_centro_costos_ctr ctr 
