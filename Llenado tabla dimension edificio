@@ -1,0 +1,20 @@
+create or replace 
+procedure dimension_edificio as
+
+
+cursor cursor_edificio is 
+(select edo_codigo,edo_nombre from sds_edificio_edi);
+
+v_edificio cursor_edificio%rowtype;
+
+begin
+
+open cursor_edificio;
+loop
+fetch cursor_edificio into v_edificio;
+exit when cursor_edificio%notfound;
+dbms_output.put_line('Codigo:  '||v_edificio.edo_codigo || ' Nombre: ' || v_edificio.edo_nombre);
+insert into edificios_dwh(nombre,id_anterior) values(v_edificio.edo_nombre,v_edificio.edo_codigo);
+end loop;
+close cursor_edificio;
+end dimension_edificio;
