@@ -1,0 +1,16 @@
+create or replace procedure llenado_estados
+is
+
+cursor c1 is select * from sds_estatus_etu etu;
+v_c1 c1%rowtype;
+
+begin
+open c1;
+      loop
+      fetch c1 into v_c1;
+      exit when c1%notfound;
+      
+      insert into estado_dwh(nombre,descripcion,id_anterior) values (v_c1.etu_nombre,v_c1.etu_descripcion,v_c1.etu_codigo);
+      end loop
+
+end llenado _estados;
