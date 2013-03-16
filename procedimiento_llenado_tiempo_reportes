@@ -1,0 +1,69 @@
+CREATE OR REPLACE PROCEDURE LLENADO_TIEMPO 
+IS
+
+cursor fecha_fmo is select distinct(fmo_fecha)fecha from sds_formatos_fmo 
+group by fmo_codigo,fmo_fecha;
+
+cursor fecha_ini is select distinct(his_fecha_inicio)fecha from sds_items_historicos_ihs
+group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_inicio;
+
+cursor fecha_fin is select distinct(his_fecha_fin)fecha from sds_items_historicos_ihs
+group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_fin;
+
+cursor dato_nuevo is select distinct (fecha)fecha from aux_tiempo;
+
+v_fecha_fmo fecha_fmo%rowtype;
+v_fecha_ini fecha_ini%rowtype;
+v_fecha_fin fecha_fin%rowtype;
+v_dato_nuevo dato_nuevo%rowtype;
+BEGIN
+dbms_output.enable(99999999);
+
+ /* execute immediate('CREATE TABLE "AUX_TIEMPO" 
+   (  "DIA" NUMBER, 
+	"MES" NUMBER, 
+	"AÑO" NUMBER, 
+	"FECHA" DATE 
+   ) SEGMENT CREATION IMMEDIATE ');
+   */
+   execute immediate('truncate table tiempo_dwh');
+  open fecha_fmo;
+  
+  LOOP
+  fetch fecha_fmo into v_fecha_fmo;
+  exit when fecha_fmo%notfound;
+--dbms_output.put_line(to_char(v_fecha_fmo.fecha,'dd') ||'-'|| to_char(v_fecha_fmo.fecha,'mm') ||'-'|| to_char(v_fecha_fmo.fecha,'YY'));
+
+insert into aux_tiempo(dia,mes,año,fecha) values (to_char(v_fecha_fmo.fecha,'dd'),to_char(v_fecha_fmo.fecha,'mm'),to_char(v_fecha_fmo.fecha,'yy'),to_char(v_fecha_fmo.fecha,'dd-mm-yy'));
+  END LOOP;
+  close fecha_fmo;
+  
+  open fecha_ini;
+  LOOP
+  fetch fecha_ini into v_fecha_ini;
+  exit when fecha_ini%notfound;
+  --dbms_output.put_line(to_char(v_fecha_ini.fecha,'dd') ||'-'|| to_char(v_fecha_ini.fecha,'mm') ||'-'|| to_char(v_fecha_ini.fecha,'YY'));
+  insert into aux_tiempo(dia,mes,año,fecha) values (to_char(v_fecha_ini.fecha,'dd'),to_char(v_fecha_ini.fecha,'mm'),to_char(v_fecha_ini.fecha,'yy'),to_char(v_fecha_ini.fecha,'dd-mm-yy'));
+  END LOOP;
+  close fecha_ini;
+  
+  open fecha_fin;
+  LOOP
+   fetch fecha_fin into v_fecha_fin;
+  exit when fecha_fin%notfound;
+  --dbms_output.put_line(to_char(v_fecha_fin.fecha,'dd') ||'-'|| to_char(v_fecha_fin.fecha,'mm') ||'-'|| to_char(v_fecha_fin.fecha,'YY'));
+  insert into aux_tiempo(dia,mes,año,fecha) values (to_char(v_fecha_fin.fecha,'dd'),to_char(v_fecha_fin.fecha,'mm'),to_char(v_fecha_fin.fecha,'yy'),to_char(v_fecha_fin.fecha,'dd-mm-yy'));
+  END LOOP;
+  close fecha_fin;
+  
+
+   open dato_nuevo;  
+  LOOP
+  fetch dato_nuevo into v_dato_nuevo;
+  exit when dato_nuevo%notfound;
+
+insert into tiempo_dwh(dia,mes,año,fecha) values (to_char(v_dato_nuevo.fecha,'dd'),to_char(v_dato_nuevo.fecha,'mm'),to_char(v_dato_nuevo.fecha,'yy'),to_char(v_dato_nuevo.fecha,'dd-mm-yy'));
+  END LOOP;
+  close dato_nuevo;
+execute immediate('drop table aux_tiempo');
+END LLENADO_TIEMPO;
