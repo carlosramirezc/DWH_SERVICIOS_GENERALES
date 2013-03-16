@@ -1,0 +1,29 @@
+create or replace 
+procedure dimension_material as
+
+cursor material_cursor is
+( select mtl.mtl_codigo, mtl.mtl_nombre, am.aml_cantidadestimada, am.aml_cantidadusada, fmo.fmo_codigo, svo.svo_codigo , tml.tml_codigo     
+from sds_materiales_mtl mtl
+join sds_asignar_material_am am
+on(mtl.mtl_codigo = am.mtl_codigo)
+join sds_servicios svo
+on(svo.svo_codigo = am.svo_codigo)
+join sds_formatos_fmo fmo
+on(fmo.fmo_codigo = am.fmo_codigo)
+join sds_tipo_materiales_tml tml
+on tml.tml_codigo = svo.tso_codigo);
+
+v_material material_cursor%ROWTYPE;
+
+begin
+
+open material_cursor;
+loop
+fetch material_cursor into v_material;
+exit when material_cursor%notfound;
+insert into material_dwh (id_servicio, id_solicitud, id_tipo_material, nombre, cantidad_estimada, cantidad_usada, id_anterior)
+values (v_material.svo_codigo, v_material.fmo_codigo, v_material.tml_codigo, v_material.mtl_nombre, v_material.aml_cantidadestimada, v_material.aml_cantidadusada, v_material.mtl_codigo );
+
+end loop;
+close material_cursor;
+end dimension_material;
