@@ -1,0 +1,20 @@
+create or replace
+PROCEDURE LLENADO_CENTRO_COSTOS 
+IS 
+
+cursor c1 is select  ctr_id_centro, ctr_descripcion, nvl(ctr_ubicacion,'N/D')ubica from sds_centro_costos_ctr
+group by ctr_id_centro, ctr_descripcion, ctr_ubicacion;
+
+v_c1 c1%rowtype;
+
+BEGIN
+
+open c1;
+    LOOP
+    fetch c1 into v_c1;
+    exit when c1%notfound;
+    insert into centro_costos_dwh (descripcion,ubicacion,id_anterior) values (v_c1.ctr_descripcion,v_c1.ubica,v_c1.ctr_id_centro);
+    END LOOP;
+    
+close c1;
+END LLENADO_CENTRO_COSTOS;
