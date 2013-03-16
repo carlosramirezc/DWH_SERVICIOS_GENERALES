@@ -1,0 +1,19 @@
+create or replace 
+procedure dimension_personal as
+
+cursor personal_cursor is 
+(select per.cedula, per.nombre, per.apellido
+from sds_personas_per per);
+
+v_personal personal_cursor%ROWTYPE;
+
+begin
+
+open personal_cursor; 
+loop
+fetch personal_cursor into v_personal;
+exit when personal_cursor%notfound;
+insert into personal_dwh (cedula, nombre, apellido) values (v_personal.cedula, v_personal.nombre, v_personal.apellido);
+end loop;
+close personal_cursor;
+end dimension_personal;
