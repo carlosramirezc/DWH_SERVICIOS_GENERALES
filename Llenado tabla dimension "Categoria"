@@ -1,0 +1,20 @@
+create or replace 
+procedure dimension_categoria as
+
+cursor categoria_cursor is
+(select tso.tso_codigo, tso.tso_nombre, tso.tso_descripcion 
+from sds_tipo_servicios_tso tso);
+
+v_categoria categoria_cursor%ROWTYPE;   
+
+begin
+
+open categoria_cursor;
+loop
+fetch categoria_cursor into v_categoria;
+exit when categoria_cursor%notfound;
+dbms_output.put_line('Codigo: '||v_categoria.tso_codigo||' Nombre: '||v_categoria.tso_nombre||' Descripcion: '||v_categoria.tso_descripcion);
+insert into categoria_dwh (nombre, descripcion, id_anterior) values (v_categoria.tso_nombre, v_categoria.tso_descripcion, v_categoria.tso_codigo);
+end loop;
+close categoria_cursor;
+end dimension_categoria;
