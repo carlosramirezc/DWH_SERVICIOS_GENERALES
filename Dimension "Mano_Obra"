@@ -1,0 +1,20 @@
+create or replace procedure dimension_mano_obra as
+
+cursor mano_obra_cursor is
+(select distinct svo.svo_codigo, apl.apl_personalsugerido, apl.apl_personalusado 
+from sds_asignar_personal_apl apl
+join sds_servicios svo
+on(svo.svo_codigo = apl.svo_codigo));
+
+v_mano_obra mano_obra_cursor%rowtype;
+
+begin
+open mano_obra_cursor;
+loop
+fetch mano_obra_cursor into v_mano_obra;
+exit mano_obra_cursor&notfound;
+insert into mano_obra_dwh (id_solicitud_servicio, personal_sugerido, personal_usado) 
+values (v_mano_obra.svo_codigo, v_mano_obra.apl_personalsugerido, v_mano_obra.apl_personalusado);
+end loop;
+close mano_obra_cursor;
+end dimension_mano_obra;
