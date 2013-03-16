@@ -1,4 +1,5 @@
-CREATE OR REPLACE PROCEDURE LLENADO_TIEMPO 
+create or replace
+PROCEDURE LLENADO_TIEMPO 
 IS
 
 cursor fecha_fmo is select distinct(fmo_fecha)fecha from sds_formatos_fmo 
@@ -19,14 +20,8 @@ v_dato_nuevo dato_nuevo%rowtype;
 BEGIN
 dbms_output.enable(99999999);
 
- /* execute immediate('CREATE TABLE "AUX_TIEMPO" 
-   (  "DIA" NUMBER, 
-	"MES" NUMBER, 
-	"AÑO" NUMBER, 
-	"FECHA" DATE 
-   ) SEGMENT CREATION IMMEDIATE ');
-   */
    execute immediate('truncate table tiempo_dwh');
+   execute immediate('truncate table aux_tiempo');
   open fecha_fmo;
   
   LOOP
@@ -65,5 +60,5 @@ insert into aux_tiempo(dia,mes,año,fecha) values (to_char(v_fecha_fmo.fecha,'dd
 insert into tiempo_dwh(dia,mes,año,fecha) values (to_char(v_dato_nuevo.fecha,'dd'),to_char(v_dato_nuevo.fecha,'mm'),to_char(v_dato_nuevo.fecha,'yy'),to_char(v_dato_nuevo.fecha,'dd-mm-yy'));
   END LOOP;
   close dato_nuevo;
-execute immediate('drop table aux_tiempo');
+
 END LLENADO_TIEMPO;
