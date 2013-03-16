@@ -1,0 +1,19 @@
+create or replace
+procedure llenado_solicitud
+is
+
+cursor c1 is select fmo.fmo_codigo,fmo.fmo_fecha, fmo.jef_infa_ctr_id_centro,his.his_fecha_inicio,his.his_fecha_fin,his.etu_codigo  from sds_formatos_fmo fmo join sds_items_historicos_ihs his
+on(fmo.fmo_codigo = his.fmo_codigo) group by fmo.fmo_codigo,fmo.fmo_fecha, fmo.jef_infa_ctr_id_centro,his.his_fecha_inicio,his.his_fecha_fin,his.etu_codigo;
+
+v_c1 c1%rowtype;
+begin
+open c1;
+
+    loop
+    fetch c1 into v_c1;
+    exit when c1%notfound;
+    --dbms_output.put_line(v_c1.fmo_codigo ||'-'|| v_c1.fmo_fecha ||'-'||v_c1.jef_infa_ctr_id_centro ||'-'||v_c1.his_fecha_inicio ||'-'||v_c1.fecha_fin);
+    insert into solicitud_dwh(id_centro,id_estado,solicitud_fecha,fecha_inicio,fecha_fin,id_anterior) values (v_c1.jef_infa_ctr_id_centro,v_c1.etu_codigo,v_c1.fmo_fecha,v_c1.his_fecha_inicio,v_c1.his_fecha_fin,v_c1.fmo_codigo);
+    end loop;
+close c1;
+end llenado_solicitud;
