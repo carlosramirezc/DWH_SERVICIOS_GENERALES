@@ -13,7 +13,7 @@ open cursor_localidad;
 loop
 fetch cursor_localidad into v_localidad;
 exit when cursor_localidad%notfound;
-dbms_output.put_line('Codigo:  '||v_localidad.lcd_codigo || ' Nombre: ' || v_localidad.lcd_nombre);
+
 insert into localidad_dwh(nombre,id_anterior) values(v_localidad.lcd_nombre,v_localidad.lcd_codigo);
 end loop;
 close cursor_localidad;
