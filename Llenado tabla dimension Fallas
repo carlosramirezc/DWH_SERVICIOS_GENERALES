@@ -1,0 +1,31 @@
+create or replace 
+procedure dimension_falla as
+
+
+cursor cursor_falla is 
+(
+select  fmo.fmo_codigo, ser.svo_codigo,lcd.lcd_codigo,ihs.etu_codigo,ihs.his_fecha_inicio,ihs.his_fecha_fin,ihs.his_observacion from sds_formatos_fmo fmo
+join sds_items_historicos_ihs ihs
+on(ihs.fmo_codigo=fmo.fmo_codigo)
+join sds_servicios ser
+on(ser.svo_codigo= ihs.svo_codigo)
+join sds_items_ite ite
+on(ite.fmo_codigo = fmo.fmo_codigo and ite.svo_codigo = ser.svo_codigo)
+join sds_localidades_lcd lcd
+on(lcd.lcd_codigo = ite.lcd_codigo)
+);
+
+v_falla cursor_falla%rowtype;
+
+begin
+
+open cursor_falla;
+loop
+fetch cursor_falla into v_falla;
+exit when cursor_falla%notfound;
+
+insert into fallas_dwh(id_solicitud,id_servicio,id_localidad,id_estado,fecha_inicio,fecha_fin,observacion) 
+values(v_falla.fmo_codigo,v_falla.svo_codigo,v_falla.lcd_codigo,v_falla.etu_codigo,v_falla.his_fecha_inicio,v_falla.his_fecha_fin,v_falla.his_observacion);
+end loop;
+close cursor_falla;
+end dimension_falla;
