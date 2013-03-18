@@ -1,4 +1,3 @@
-
 --------------------------------------------------------
 --  DDL for Table REPORTES
 --------------------------------------------------------
@@ -34,14 +33,15 @@ SET DEFINE OFF;
 --  DDL for Table RECURSOS
 --------------------------------------------------------
 
-  CREATE TABLE "RECURSOS" 
+CREATE TABLE "RECURSOS" 
    (	"ID_PERSONAL" NUMBER, 
 	"ID_CATEGORIA" NUMBER, 
 	"ID_MATERIAL" NUMBER, 
 	"ID_MANO_OBRA" NUMBER, 
 	"ID_SERVICIO" NUMBER, 
 	"ID_TIEMPO" NUMBER, 
-	"CANTIDAD_MATERIAL" NUMBER, 
+	"CANTIDAD_MATERIAL_MAXIMO" NUMBER, 
+  "CANTIDAD_MATERIAL_MINIMO" NUMBER, 
 	"CANTIDAD_TRABAJOS" NUMBER, 
 	"CANTIDAD_PERSONAL_USADO" NUMBER, 
 	"CANTIDAD_PERSONAL_OCUPADO" NUMBER, 
