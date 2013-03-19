@@ -1,0 +1,31 @@
+create or replace 
+PROCEDURE tiempos
+as
+
+cursor fecha_ini is select distinct(his_fecha_inicio)fecha from sds_items_historicos_ihs
+group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_inicio;
+
+cursor fecha_fin is select distinct(his_fecha_fin)fecha from sds_items_historicos_ihs
+group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_fin;
+
+
+v_fecha_ini fecha_ini%rowtype;
+v_fecha_fin fecha_fin%rowtype;
+BEGIN
+
+  open fecha_ini;
+  LOOP
+  fetch fecha_ini into v_fecha_ini;
+  exit when fecha_ini%notfound;
+  insert into tiempo1_dwh(dia,mes,año,fecha) values (to_char(v_fecha_ini.fecha,'dd'),to_char(v_fecha_ini.fecha,'mm'),to_char(v_fecha_ini.fecha,'yy'),to_char(v_fecha_ini.fecha,'dd-mm-yy'));
+  END LOOP;
+  close fecha_ini;
+  
+  open fecha_fin;
+  LOOP
+   fetch fecha_fin into v_fecha_fin;
+  exit when fecha_fin%notfound;
+  insert into tiempo2_dwh(dia,mes,año,fecha) values (to_char(v_fecha_fin.fecha,'dd'),to_char(v_fecha_fin.fecha,'mm'),to_char(v_fecha_fin.fecha,'yy'),to_char(v_fecha_fin.fecha,'dd-mm-yy'));
+  END LOOP;
+  close fecha_fin;
+  end tiempos;
