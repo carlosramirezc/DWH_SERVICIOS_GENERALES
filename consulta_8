@@ -1,0 +1,11 @@
+select modwh.id_mano_obra,mdwh.id_material,sdwh.id_servicio,count(asignar_per.fmo_codigo),sum(asignar_mat.aml_cantidadestimada),sum(asignar_mat.aml_cantidadusada),sum(asignar_per.apl_personalsugerido),sum(asignar_per.apl_personalusado) from sds_servicios serv join sds_asignar_personal_apl asignar_per
+on(serv.svo_codigo = asignar_per.svo_codigo) join sds_asignar_material_am asignar_mat
+on (serv.svo_codigo = asignar_mat.svo_codigo) join servicio_dwh sdwh
+on(serv.svo_codigo=sdwh.id_anterior) join material_dwh mdwh
+on(asignar_mat.mtl_codigo = mdwh.id_anterior ) join mano_obra_dwh modwh
+on(asignar_per.apl_personalsugerido = modwh.personal_sugerido and asignar_per.apl_personalusado = modwh.personal_usado)
+join sds_items_historicos_ihs ihs 
+on(ihs.fmo_codigo = asignar_mat.fmo_codigo and ihs.svo_codigo = asignar_mat.svo_codigo)
+where asignar_mat.fmo_codigo = asignar_per.fmo_codigo and asignar_mat.aml_cantidadestimada > asignar_mat.aml_cantidadusada and asignar_per.apl_personalsugerido > asignar_per.apl_personalusado and asignar_mat.aml_cantidadusada >=0 and ihs.his_fecha_inicio='23-01-10'
+and asignar_mat.aml_cantidadestimada>=0 and asignar_per.apl_personalsugerido>=0 and asignar_per.apl_personalusado>=0
+group by asignar_per.fmo_codigo,asignar_mat.fmo_codigo,asignar_per.svo_codigo,asignar_mat.mtl_codigo,modwh.id_mano_obra,mdwh.id_material,sdwh.id_servicio
