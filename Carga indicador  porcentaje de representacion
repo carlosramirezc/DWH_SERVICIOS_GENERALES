@@ -66,10 +66,11 @@ close cursor_centro;
 end carga_inicial_reportes;
 ----------------------------------------------CONSULTA--------------------------------------
 
-select rep.id_centro,round((rep.cantidad_solicitud) /(select nvl(rep.cantidad_total_solicitudes,0) 
-
-from reportes rep
+select rep.id_centro Id_centro_nueva,centro.id_anterior "Centro de Costo",round((rep.cantidad_solicitud) /(select nvl(rep.cantidad_total_solicitudes,0) from reportes rep
 where rep.cantidad_total_solicitudes !=0)*100,3)"Porcentaje"
 
 from reportes rep
+join centro_costos_dwh centro
+on(centro.id_centro = rep.id_centro)
 where rep.cantidad_solicitud !=0
+
