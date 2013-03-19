@@ -1,0 +1,207 @@
+create or replace
+PROCEDURE CARGA_INICIAL_RECURSOS 
+IS
+-------------------------------------------------------------------------------------
+cursor consulta_tiempo is select id_tiempo,fecha,dia,mes,año from tiempo_dwh;
+cursor consulta_tiempo1 is select id_tiempo,nvl(mes,0) mes from tiempo_dwh group by mes,id_tiempo;
+-------------------------------------------------------------------------------------
+cursor personal_usado(fecha date) is 
+select cdwh.id_categoria id_catego,ser.svo_codigo Codigo_Servicio,sum(apl.apl_personalusado) Cantidad
+from sds_servicios ser 
+join sds_asignar_personal_apl apl
+on(apl.svo_codigo = ser.svo_codigo)
+join sds_tipo_servicios_tso tso
+on(tso.tso_codigo = ser.tso_codigo)
+join sds_items_historicos_ihs ihs
+on(apl.fmo_codigo = ihs.fmo_codigo and apl.svo_codigo = ihs.svo_codigo)
+join servicio_dwh sdwh
+on(ser.svo_codigo =sdwh.id_anterior)
+join categoria_dwh cdwh
+on(cdwh.id_categoria = tso.tso_codigo) 
+where ihs.his_fecha_inicio = fecha
+group by  tso.tso_nombre,ser.tso_codigo, ser.svo_codigo,cdwh.id_categoria;
+
+-------------------------------------------------------------------------------------
+
+cursor cantidad_minima(mes varchar) is select * from(
+select mdwh.id_material,to_char(ihs.his_fecha_fin, 'Month') Mes, sum(am.aml_cantidadusada) Cantidad_Minima
+from sds_asignar_material_am am
+join sds_servicios ser
+on(ser.svo_codigo = am.svo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.svo_codigo= ser.svo_codigo)
+join sds_estatus_etu etu
+on(ihs.etu_codigo = etu.etu_codigo)
+join material_dwh mdwh
+on(am.mtl_codigo = mdwh.id_anterior)
+where etu.etu_nombre= 'aprobado' and to_char(ihs.his_fecha_fin, 'mm')=mes
+group by to_char(ihs.his_fecha_fin, 'Month'),am.mtl_codigo,mdwh.id_material
+order by 3 asc)
+where rownum=1;
+-------------------------------------------------------------------------------------
+
+cursor cantidad_maxima(mes varchar) is select * from(
+select mdwh.id_material,to_char(ihs.his_fecha_fin, 'Month') Mes, sum(am.aml_cantidadusada) Cantidad_Maxima
+from sds_asignar_material_am am
+join sds_servicios ser
+on(ser.svo_codigo = am.svo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.svo_codigo= ser.svo_codigo)
+join sds_estatus_etu etu
+on(ihs.etu_codigo = etu.etu_codigo)
+join material_dwh mdwh
+on(am.mtl_codigo = mdwh.id_anterior)
+where etu.etu_nombre= 'aprobado' and to_char(ihs.his_fecha_fin, 'mm')=mes
+group by to_char(ihs.his_fecha_fin, 'Month'),am.mtl_codigo,mdwh.id_material
+order by 3 desc)
+where rownum=1;
+-------------------------------------------------------------------------------------
+
+cursor porce(fecha date) is select ihs.his_fecha_inicio,sum(apl.apl_personalusado) ocupado,(select count(cedula) from sds_personas_per)total
+from sds_asignar_personal_apl apl join sds_items_historicos_ihs ihs
+on(apl.fmo_codigo = ihs.fmo_codigo and apl.svo_codigo = ihs.svo_codigo)
+where ihs.his_fecha_inicio= fecha
+group by ihs.his_fecha_inicio;
+
+-------------------------------------------------------------------------------------
+cursor mano_obra (fecha date) is 
+select modwh.id_mano_obra,mdwh.id_material,sdwh.id_servicio,count(asignar_per.fmo_codigo)per_total,sum(asignar_mat.aml_cantidadestimada),sum(asignar_mat.aml_cantidadusada),sum(asignar_per.apl_personalsugerido),sum(asignar_per.apl_personalusado)per_ocupado 
+from sds_servicios serv join sds_asignar_personal_apl asignar_per
+on(serv.svo_codigo = asignar_per.svo_codigo) join sds_asignar_material_am asignar_mat
+on (serv.svo_codigo = asignar_mat.svo_codigo) join servicio_dwh sdwh
+on(serv.svo_codigo=sdwh.id_anterior) join material_dwh mdwh
+on(asignar_mat.mtl_codigo = mdwh.id_anterior ) join mano_obra_dwh modwh
+on(asignar_per.apl_personalsugerido = modwh.personal_sugerido and asignar_per.apl_personalusado = modwh.personal_usado)
+join sds_items_historicos_ihs ihs 
+on(ihs.fmo_codigo = asignar_mat.fmo_codigo and ihs.svo_codigo = asignar_mat.svo_codigo)
+where asignar_mat.fmo_codigo = asignar_per.fmo_codigo and asignar_mat.aml_cantidadestimada > asignar_mat.aml_cantidadusada and asignar_per.apl_personalsugerido > asignar_per.apl_personalusado and asignar_mat.aml_cantidadusada >=0 and ihs.his_fecha_inicio=fecha
+and asignar_mat.aml_cantidadestimada>=0 and asignar_per.apl_personalsugerido>=0 and asignar_per.apl_personalusado>=0
+group by asignar_per.fmo_codigo,asignar_mat.fmo_codigo,asignar_per.svo_codigo,asignar_mat.mtl_codigo,modwh.id_mano_obra,mdwh.id_material,sdwh.id_servicio;
+-------------------------------------------------------------------------------------
+
+
+v_personal_usado personal_usado%rowtype;
+v_ctiempo consulta_tiempo%rowtype;
+v_ctiempo1 consulta_tiempo1%rowtype;
+v_cantidad_minima cantidad_minima%rowtype;
+v_cantidad_maxima cantidad_maxima%rowtype;
+v_porce porce%rowtype;
+v_mano_obra mano_obra%rowtype;
+BEGIN
+
+---------------------------cantidad personal usado--------------------------------------------
+dbms_output.enable(99999999);
+open consulta_tiempo;
+loop
+fetch consulta_tiempo into v_ctiempo;
+exit when consulta_tiempo%notfound;
+
+      open  personal_usado(v_ctiempo.fecha);
+
+      loop
+      fetch personal_usado into v_personal_usado;
+      exit when personal_usado%notfound;
+
+      dbms_output.put_line(v_ctiempo.id_tiempo||'-'||v_personal_usado.Codigo_Servicio||'-'||v_personal_usado.Cantidad);
+      insert into recursos(id_servicio,id_tiempo,cantidad_personal_usado) values (v_personal_usado.id_catego,v_ctiempo.id_tiempo,v_personal_usado.Cantidad);
+      end loop;
+
+      close personal_usado;
+            
+      
+end loop;
+close consulta_tiempo;
+
+
+
+------------------------CANTIDAD MINIMA DE MATERIAL------------------------------------
+open consulta_tiempo1;
+
+loop
+fetch consulta_tiempo1 into v_ctiempo1;
+exit when consulta_tiempo1%notfound;
+
+       open  cantidad_minima(v_ctiempo1.mes);
+
+      loop
+      fetch cantidad_minima into v_cantidad_minima;
+      exit when cantidad_minima%notfound;
+
+      dbms_output.put_line(v_cantidad_minima.id_material||' - '||v_cantidad_minima.Mes||' - '||v_cantidad_minima.Cantidad_Minima);
+      insert into recursos(id_material,id_tiempo,cantidad_minima) values(v_cantidad_minima.id_material,v_ctiempo1.id_tiempo,v_cantidad_minima.Cantidad_Minima);
+      end loop;
+
+      close cantidad_minima;
+
+
+end loop;
+close consulta_tiempo;
+
+---------------------------------CANTIDAD MAXIMA DE MATERIAL---------------------------------------
+open consulta_tiempo1;
+
+loop
+fetch consulta_tiempo1 into v_ctiempo1;
+exit when consulta_tiempo1%notfound;
+
+       open  cantidad_maxima(v_ctiempo1.mes);
+
+      loop
+      fetch cantidad_maxima into v_cantidad_maxima;
+      exit when cantidad_maxima%notfound;
+
+
+      insert into recursos(id_material,id_tiempo,cantidad_maxima) values (v_cantidad_maxima.id_material,v_ctiempo1.id_tiempo,v_cantidad_maxima.Cantidad_Maxima);
+      end loop;
+
+      close cantidad_maxima;
+
+
+end loop;
+close consulta_tiempo1;
+
+
+---------------------------PORCENTAJE DE OCUPACION--------------------------------------------------
+open consulta_tiempo;
+loop
+fetch consulta_tiempo into v_ctiempo;
+exit when consulta_tiempo%notfound;
+
+      open  porce(v_ctiempo.fecha);
+
+      loop
+      fetch porce into v_porce;
+      exit when porce%notfound;
+
+      
+      insert into recursos(id_tiempo,cantidad_personal_ocupado,cantidad_total_personal) values (v_ctiempo.id_tiempo,v_porce.ocupado,v_porce.total);
+      end loop;
+
+      close porce;
+                  
+end loop;
+close consulta_tiempo;
+
+
+-------------CANTIDAD DE TRABAJOS-------------------------
+open consulta_tiempo;
+loop
+fetch consulta_tiempo into v_ctiempo;
+exit when consulta_tiempo%notfound;
+
+      open  mano_obra(v_ctiempo.fecha);
+
+      loop
+      fetch mano_obra into v_mano_obra;
+      exit when mano_obra%notfound;
+
+      
+      insert into recursos(id_material,id_mano_obra,id_tiempo,cantidad_personal_ocupado,cantidad_total_personal) values(v_mano_obra.id_material,v_mano_obra.id_mano_obra,v_ctiempo.id_tiempo,v_mano_obra.per_ocupado,v_mano_obra.per_total);
+      end loop;
+
+      close mano_obra;
+                  
+end loop;
+close consulta_tiempo;
+
+END CARGA_INICIAL_RECURSOS;
