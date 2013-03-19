@@ -167,59 +167,97 @@ ALTER TRIGGER "CENTRO_COSTOS_D" ENABLE;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
-
-DROP TABLE "TIEMPO_DWH" cascade constraints;
+DROP TABLE "TIEMPO1_DWH" cascade constraints;
 --------------------------------------------------------
---  DDL for Sequence TIEMPO_S
+--  DDL for Sequence TIEMPO1_S
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "TIEMPO_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+   CREATE SEQUENCE  "TIEMPO1_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
 --------------------------------------------------------
---  DDL for Table TIEMPO_DWH
+--  DDL for Table TIEMPO1_DWH
 --------------------------------------------------------
 
-  CREATE TABLE "TIEMPO_DWH" 
-   (	"ID_TIEMPO" NUMBER, 
-	"DIA" VARCHAR2(20 BYTE), 
-	"MES" VARCHAR2(20 BYTE), 
-	"AÑO" VARCHAR2(20 BYTE), 
-	"FECHA" DATE
+  CREATE TABLE "TIEMPO1_DWH" 
+   ( "ID_TIEMPO1" NUMBER, 
+ "DIA" VARCHAR2(20 BYTE), 
+ "MES" VARCHAR2(20 BYTE), 
+ "AÑO" VARCHAR2(20 BYTE), 
+ "FECHA" DATE
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
   STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
   PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
-REM INSERTING into TIEMPO_DWH
+REM INSERTING into TIEMPO1_DWH
 SET DEFINE OFF;
+
+  ALTER TABLE "TIEMPO1_DWH" MODIFY ("ID_TIEMPO1" NOT NULL ENABLE);
 --------------------------------------------------------
---  Constraints for Table TIEMPO_DWH
+--  DDL for Trigger TIEMPO1_D
 --------------------------------------------------------
 
-  ALTER TABLE "TIEMPO_DWH" MODIFY ("ID_TIEMPO" NOT NULL ENABLE);
---------------------------------------------------------
---  DDL for Trigger TIEMPO_D
---------------------------------------------------------
-
-  CREATE OR REPLACE TRIGGER "TIEMPO_D" 
-   before insert on "TIEMPO_DWH" 
+  CREATE OR REPLACE TRIGGER "TIEMPO2_D" 
+   before insert on "TIEMPO1_DWH" 
    for each row 
 begin  
    if inserting then 
-      if :NEW."ID_TIEMPO" is null then 
-         select TIEMPO_S.nextval into :NEW."ID_TIEMPO" from dual; 
+      if :NEW."ID_TIEMPO1" is null then 
+         select TIEMPO1_S.nextval into :NEW."ID_TIEMPO1" from dual; 
       end if; 
    end if; 
 end;
 
 /
-ALTER TRIGGER "TIEMPO_D" ENABLE;
+ALTER TRIGGER "TIEMPO1_D" ENABLE;
+
+
+
+
+
+
+DROP TABLE "TIEMPO2_DWH" cascade constraints;
 --------------------------------------------------------
---  DDL for Synonymn DUAL
+--  DDL for Sequence TIEMPO2_S
 --------------------------------------------------------
 
-  CREATE OR REPLACE PUBLIC SYNONYM "DUAL" FOR "SYS"."DUAL";
+   CREATE SEQUENCE  "TIEMPO2_S"  MINVALUE 1 MAXVALUE 99999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+--------------------------------------------------------
+--  DDL for Table TIEMPO2_DWH
+--------------------------------------------------------
+
+  CREATE TABLE "TIEMPO2_DWH" 
+   ( "ID_TIEMPO2" NUMBER, 
+ "DIA" VARCHAR2(20 BYTE), 
+ "MES" VARCHAR2(20 BYTE), 
+ "AÑO" VARCHAR2(20 BYTE), 
+ "FECHA" DATE
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into TIEMPO2_DWH
+SET DEFINE OFF;
+
+  ALTER TABLE "TIEMPO2_DWH" MODIFY ("ID_TIEMPO2" NOT NULL ENABLE);
+--------------------------------------------------------
+--  DDL for Trigger TIEMPO2_D
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "TIEMPO2_D" 
+   before insert on "TIEMPO2_DWH" 
+   for each row 
+begin  
+   if inserting then 
+      if :NEW."ID_TIEMPO2" is null then 
+         select TIEMPO2_S.nextval into :NEW."ID_TIEMPO2" from dual; 
+      end if; 
+   end if; 
+end;
+
+/
+ALTER TRIGGER "TIEMPO2_D" ENABLE;
+
 
 
 
