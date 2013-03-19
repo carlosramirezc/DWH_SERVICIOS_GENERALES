@@ -1,5 +1,4 @@
 ------------------------------------------PROCEDIMIENTO-----------------------------------------
-
 create or replace 
 procedure carga_inicial_reportes as
 
@@ -29,13 +28,34 @@ where centro.id_centro = x
 
 
 
+v_terminadas number:=0;
 
 cantidad_total number:=0;
+v_total number:=0;
 centros cursor_centro%rowtype;
 cantidad cantidad_solicitud_centro%rowtype;
 
 
 begin
+
+
+select count(ihs.fmo_codigo)
+into v_terminadas
+from sds_items_historicos_ihs ihs
+join sds_estatus_etu etu
+on (ihs.etu_codigo = etu.etu_codigo)
+join sds_formatos_fmo fmo
+on (fmo.fmo_codigo = ihs.fmo_codigo)
+where etu.etu_nombre = lower('terminado');
+
+select count( distinct ihs.fmo_codigo) 
+into v_total
+from sds_items_historicos_ihs ihs;
+
+insert into reportes(cantidad_fallas,cantidad_fallas_terminadas) values(v_terminadas,v_total );
+
+
+
 
 select count(fmo.fmo_codigo)
 into cantidad_total
@@ -64,13 +84,22 @@ exit when cursor_centro%notfound;
 end loop;
 close cursor_centro;
 end carga_inicial_reportes;
-----------------------------------------------CONSULTA--------------------------------------
+----------------------PORCENTAJE DE REPRESENTACION--------------------------------------
 
-select rep.id_centro Id_centro_nueva,centro.id_anterior "Centro de Costo",round((rep.cantidad_solicitud) /(select nvl(rep.cantidad_total_solicitudes,0) from reportes rep
+select rep.id_centro,round((rep.cantidad_solicitud) /(select nvl(rep.cantidad_total_solicitudes,0) 
+
+from reportes rep
 where rep.cantidad_total_solicitudes !=0)*100,3)"Porcentaje"
 
 from reportes rep
-join centro_costos_dwh centro
-on(centro.id_centro = rep.id_centro)
 where rep.cantidad_solicitud !=0
 
+------------------------PORCENTAJE DE OBRAS TERMINADAS----------------------------------------
+select * from(
+select round(nvl( cantidad_fallas,0)/nvl( cantidad_fallas_terminadas,0),3)"Porcentaje de obras 
+
+terminadas" from reportes
+where cantidad_fallas!=0
+and  cantidad_fallas_terminadas!=0
+)
+where rownum=1
