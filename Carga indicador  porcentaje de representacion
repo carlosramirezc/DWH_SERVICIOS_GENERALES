@@ -1,0 +1,75 @@
+------------------------------------------PROCEDIMIENTO-----------------------------------------
+
+create or replace 
+procedure carga_inicial_reportes as
+
+
+cursor cursor_centro is 
+(
+select distinct centro.id_centro id_centro from
+
+centro_costos_dwh centro join sds_centro_costos_ctr ctr
+on(ctr.ctr_id_centro = centro.id_anterior )
+
+);
+
+
+cursor cantidad_solicitud_centro( x centro_costos_dwh.id_centro%type)
+is
+(
+
+select count(fmo.
+fmo_codigo)Cantidad
+from sds_formatos_fmo fmo
+join centro_costos_dwh centro 
+on(centro.id_anterior=fmo.jef_infa_ctr_id_centro)
+where centro.id_centro = x
+
+);
+
+
+
+
+cantidad_total number:=0;
+centros cursor_centro%rowtype;
+cantidad cantidad_solicitud_centro%rowtype;
+
+
+begin
+
+select count(fmo.fmo_codigo)
+into cantidad_total
+from sds_formatos_fmo fmo;
+insert into reportes(cantidad_total_solicitudes) values(cantidad_total);
+
+open cursor_centro;
+loop
+fetch cursor_centro into centros;
+exit when cursor_centro%notfound;
+
+    open cantidad_solicitud_centro(centros.id_centro);
+    loop
+    fetch cantidad_solicitud_centro into cantidad;
+    exit when cantidad_solicitud_centro%notfound;
+    insert into reportes(id_centro,cantidad_solicitud) values
+
+(centros.id_centro,cantidad.Cantidad);
+
+    
+    end loop;
+    
+    close cantidad_solicitud_centro;
+
+    
+end loop;
+close cursor_centro;
+end carga_inicial_reportes;
+----------------------------------------------CONSULTA--------------------------------------
+
+select rep.id_centro,round((rep.cantidad_solicitud) /(select nvl(rep.cantidad_total_solicitudes,0) 
+
+from reportes rep
+where rep.cantidad_total_solicitudes !=0)*100,3)"Porcentaje"
+
+from reportes rep
+where rep.cantidad_solicitud !=0
