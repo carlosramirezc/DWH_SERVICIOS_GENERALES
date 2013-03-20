@@ -1,0 +1,114 @@
+
+create or replace 
+procedure
+carga_inicial_reporte as
+
+
+
+cursor cursor_todo is
+(select distinct estado.id_estado id_estado,tiempo.id_tiempo id_tiempo, sol.id_solicitud id_solicitud from sds_formatos_fmo fmo
+join solicitud_dwh sol
+on(sol.id_anterior = fmo.fmo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.fmo_codigo = fmo.fmo_codigo and ihs.fmo_codigo = sol.id_anterior)
+join tiempo_dwh tiempo
+on(tiempo.fecha = ihs.his_fecha_inicio or tiempo.fecha = ihs.his_fecha_fin)
+join sds_estatus_etu etu 
+on(etu.etu_codigo = ihs.etu_codigo )
+join estado_dwh estado
+on(estado.id_anterior = etu.etu_codigo)
+);
+
+cursor tiempo_promedio(   x estado_dwh.id_estado%type,  y solicitud_dwh.id_solicitud%type)
+is
+(
+select avg(ihs.his_fecha_fin - ihs.his_fecha_inicio)Tiempo
+from sds_items_historicos_ihs ihs 
+join sds_formatos_fmo fmo
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+join  solicitud_dwh sol
+on(sol.id_anterior = fmo.fmo_codigo)
+join sds_estatus_etu etu
+on(etu.etu_codigo = ihs.etu_codigo)
+join estado_dwh estado
+on(estado.id_anterior = etu.etu_codigo)
+where estado.id_estado = x
+and  sol.id_solicitud=y
+group by etu.etu_codigo,etu.etu_nombre
+);
+
+
+
+cursor cursor_solicitudes_estado(  x estado_dwh.id_estado%type,  y solicitud_dwh.id_solicitud%type )
+is(
+select count(historico.fmo_codigo) Cantidad_solicitudes
+from sds_items_historicos_ihs historico
+join sds_estatus_etu etu
+on(historico.etu_codigo = etu.etu_codigo)
+join solicitud_dwh sol
+on(sol.id_anterior = historico.fmo_codigo )
+join estado_dwh estado
+on(estado.id_anterior= etu.etu_codigo)
+where estado.id_estado = x
+and  sol.id_solicitud=y
+and (etu_nombre='listado' or etu_nombre='aprobado' or etu_nombre='pausado') 
+group by historico.etu_codigo,etu_nombre
+);
+
+
+chiquito number:=0;
+grande number:=0;
+todo cursor_todo%rowtype;
+tiempo tiempo_promedio%rowtype;
+solicitud cursor_solicitudes_estado%rowtype;
+
+begin 
+
+
+
+
+
+select Count(ihs.fmo_codigo)Codigo
+into chiquito
+from sds_items_historicos_ihs ihs  join  sds_estatus_etu etu
+on(ihs.etu_codigo= etu.etu_codigo) 
+join sds_formatos_fmo fmo
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+where etu.etu_nombre=lower('terminado');
+
+
+select count( distinct ihs.fmo_codigo) 
+into grande
+from sds_items_historicos_ihs ihs;
+
+open cursor_todo;
+loop
+fetch cursor_todo into todo;
+exit when cursor_todo%notfound;
+
+    open tiempo_promedio(todo.id_estado, todo.id_solicitud );
+    open cursor_solicitudes_estado( todo.id_estado, todo.id_solicitud );
+    loop
+    
+    fetch tiempo_promedio into tiempo;
+    fetch cursor_solicitudes_estado into solicitud;
+    exit when tiempo_promedio%notfound;
+    
+
+    dbms_output.put_line('Codigo:  '||todo.id_solicitud);
+    insert into reportes_h( id_solicitud,id_estado,id_tiempo,tiempo_promedio,cantidad_solicitud,cantidad_terminadas,cantidad_total ) 
+    values( todo.id_solicitud, todo.id_estado, todo.id_tiempo, tiempo.Tiempo,solicitud.Cantidad_solicitudes, chiquito, grande );
+
+    
+    end loop;
+
+    close  cursor_solicitudes_estado;
+    
+    close tiempo_promedio;
+
+    
+end loop;
+close cursor_todo;
+  
+
+end carga_inicial_reporte;
