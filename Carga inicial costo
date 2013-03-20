@@ -1,0 +1,98 @@
+create or replace 
+procedure carga_inicial_centro as
+
+
+cursor cursor_centro is 
+(
+
+select distinct centro.id_centro id_centro,tiempo.id_tiempo id_tiempo, sol.id_solicitud id_solicitud from sds_formatos_fmo fmo
+join solicitud_dwh sol
+on(sol.id_anterior = fmo.fmo_codigo)
+join sds_items_historicos_ihs ihs
+on(ihs.fmo_codigo = fmo.fmo_codigo and ihs.fmo_codigo = sol.id_anterior)
+join tiempo_dwh tiempo
+on(tiempo.fecha = ihs.his_fecha_inicio or tiempo.fecha = ihs.his_fecha_fin)
+join sds_centro_costos_ctr ctr
+on(ctr.ctr_id_centro = fmo.jef_infa_ctr_id_centro)
+join centro_costos_dwh centro
+on(centro.id_anterior = ctr.ctr_id_centro)
+
+);
+
+
+cursor cantidad_solicitud_centro(  x centro_costos_dwh.id_centro%type,  y solicitud_dwh.id_solicitud%type)
+is
+(
+
+select count(fmo.fmo_codigo)Cantidad
+from sds_formatos_fmo fmo
+join centro_costos_dwh centro 
+on(centro.id_anterior=fmo.jef_infa_ctr_id_centro)
+join solicitud_dwh sol
+on(sol.id_anterior = fmo.fmo_codigo)
+where centro.id_centro = x
+
+
+);
+
+cursor tiempo_atencion( x centro_costos_dwh.id_centro%type,  y solicitud_dwh.id_solicitud%type)
+is
+(
+
+select nvl(sum( ihs.his_fecha_fin - fmo.fmo_fecha ),0) Tiempo
+from sds_formatos_fmo fmo
+join sds_items_historicos_ihs ihs
+on(fmo.fmo_codigo = ihs.fmo_codigo)
+join sds_centro_costos_ctr ctr
+on(ctr.ctr_id_centro = fmo.jef_infa_ctr_id_centro)
+join centro_costos_dwh centro
+on(centro.id_anterior = fmo.jef_infa_ctr_id_centro)
+join solicitud_dwh sol
+on(sol.id_anterior = fmo.fmo_codigo)
+where ihs.his_fecha_fin > fmo.fmo_fecha
+and centro.id_centro=x
+
+);
+
+total number:=0;
+centros cursor_centro%rowtype;
+cantidad cantidad_solicitud_centro%rowtype;
+tiempo tiempo_atencion%rowtype;
+
+begin
+
+
+select count(  fmo_codigo) 
+into total
+from sds_formatos_fmo;
+
+open cursor_centro;
+loop
+fetch cursor_centro into centros;
+exit when cursor_centro%notfound;
+
+    open cantidad_solicitud_centro(centros.id_centro,centros.id_solicitud );
+    open tiempo_atencion(centros.id_centro,centros.id_solicitud );
+    loop
+    
+    fetch cantidad_solicitud_centro into cantidad;
+    fetch tiempo_atencion into tiempo;
+    exit when cantidad_solicitud_centro%notfound;
+    
+dbms_output.put_line('Codigo:  '||centros.id_centro||  'Codigo:  '||centros.id_solicitud ||'Codigo:  '|| centros.id_centro ||'Codigo:  '|| centros.id_tiempo|| 'Codigo:  '||
+cantidad.Cantidad||  'Codigo:  '|| total ||'Codigo:  '||tiempo.Tiempo );
+    
+    insert into centro_h(id_solicitud, id_centro,id_tiempo,cantidad_solicitud,cantidad_total,tiempo_atencion) 
+    values(centros.id_solicitud , centros.id_centro, centros.id_tiempo, cantidad.Cantidad, total, tiempo.Tiempo);
+
+    
+    end loop;
+
+    close  tiempo_atencion;
+    
+    close cantidad_solicitud_centro;
+
+    
+end loop;
+close cursor_centro;
+end carga_inicial_centro;
