@@ -1,9 +1,6 @@
-create or replace
+create or replace 
 PROCEDURE LLENADO_TIEMPO 
 IS
-
-cursor fecha_fmo is select distinct(fmo_fecha)fecha from sds_formatos_fmo 
-group by fmo_codigo,fmo_fecha;
 
 cursor fecha_ini is select distinct(his_fecha_inicio)fecha from sds_items_historicos_ihs
 group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_inicio;
@@ -13,25 +10,11 @@ group by fmo_codigo,svo_codigo,etu_codigo,his_fecha_fin;
 
 cursor dato_nuevo is select distinct (fecha)fecha from aux_tiempo;
 
-v_fecha_fmo fecha_fmo%rowtype;
+
 v_fecha_ini fecha_ini%rowtype;
 v_fecha_fin fecha_fin%rowtype;
 v_dato_nuevo dato_nuevo%rowtype;
-BEGIN
-dbms_output.enable(99999999);
-
-   execute immediate('truncate table tiempo_dwh');
-   execute immediate('truncate table aux_tiempo');
-  open fecha_fmo;
-  
-  LOOP
-  fetch fecha_fmo into v_fecha_fmo;
-  exit when fecha_fmo%notfound;
---dbms_output.put_line(to_char(v_fecha_fmo.fecha,'dd') ||'-'|| to_char(v_fecha_fmo.fecha,'mm') ||'-'|| to_char(v_fecha_fmo.fecha,'YY'));
-
-insert into aux_tiempo(dia,mes,año,fecha) values (to_char(v_fecha_fmo.fecha,'dd'),to_char(v_fecha_fmo.fecha,'mm'),to_char(v_fecha_fmo.fecha,'yy'),to_char(v_fecha_fmo.fecha,'dd-mm-yy'));
-  END LOOP;
-  close fecha_fmo;
+begin
   
   open fecha_ini;
   LOOP
